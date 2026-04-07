@@ -1,5 +1,6 @@
 import base64
 import jiosaavn
+import html
 from pyDes import *
 
 
@@ -11,7 +12,7 @@ def format_song(data, lyrics):
                 "_320.mp4", "_160.mp4")
         data['media_preview_url'] = data['media_url'].replace(
             "_320.mp4", "_96_p.mp4").replace("_160.mp4", "_96_p.mp4").replace("//aac.", "//preview.")
-    except KeyError or TypeError:
+    except (KeyError, TypeError):
         url = data['media_preview_url']
         url = url.replace("preview", "aac")
         if data['320kbps'] == "true":
@@ -20,12 +21,12 @@ def format_song(data, lyrics):
             url = url.replace("_96_p.mp4", "_160.mp4")
         data['media_url'] = url
 
-    data['song'] = format(data['song'])
-    data['music'] = format(data['music'])
-    data['singers'] = format(data['singers'])
-    data['starring'] = format(data['starring'])
-    data['album'] = format(data['album'])
-    data["primary_artists"] = format(data["primary_artists"])
+    data['song'] = format_str(data['song'])
+    data['music'] = format_str(data['music'])
+    data['singers'] = format_str(data['singers'])
+    data['starring'] = format_str(data['starring'])
+    data['album'] = format_str(data['album'])
+    data["primary_artists"] = format_str(data["primary_artists"])
     data['image'] = data['image'].replace("150x150", "500x500")
 
     if lyrics:
@@ -35,7 +36,7 @@ def format_song(data, lyrics):
             data['lyrics'] = None
 
     try:
-        data['copyright_text'] = data['copyright_text'].replace("&copy;", "©")
+        data['copyright_text'] = html.unescape(data['copyright_text'])
     except KeyError:
         pass
     return data
@@ -43,24 +44,24 @@ def format_song(data, lyrics):
 
 def format_album(data, lyrics):
     data['image'] = data['image'].replace("150x150", "500x500")
-    data['name'] = format(data['name'])
-    data['primary_artists'] = format(data['primary_artists'])
-    data['title'] = format(data['title'])
+    data['name'] = format_str(data['name'])
+    data['primary_artists'] = format_str(data['primary_artists'])
+    data['title'] = format_str(data['title'])
     for song in data['songs']:
         song = format_song(song, lyrics)
     return data
 
 
 def format_playlist(data, lyrics):
-    data['firstname'] = format(data['firstname'])
-    data['listname'] = format(data['listname'])
+    data['firstname'] = format_str(data['firstname'])
+    data['listname'] = format_str(data['listname'])
     for song in data['songs']:
         song = format_song(song, lyrics)
     return data
 
 
-def format(string):
-    return string.encode().decode().replace("&quot;", "'").replace("&amp;", "&").replace("&#039;", "'")
+def format_str(string):
+    return html.unescape(string.encode().decode())
 
 
 def decrypt_url(url):

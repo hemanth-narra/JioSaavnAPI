@@ -36,7 +36,7 @@ def get_song(id, lyrics):
         song_data = helper.format_song(song_response[id], lyrics)
         if song_data:
             return song_data
-    except:
+    except Exception:
         return None
 
 
@@ -93,5 +93,9 @@ def get_playlist_id(input_url):
 def get_lyrics(id):
     url = endpoints.lyrics_base_url+id
     lyrics_json = requests.get(url).text
-    lyrics_text = json.loads(lyrics_json)
-    return lyrics_text['lyrics']
+    try:
+        lyrics_text = json.loads(lyrics_json)
+        return lyrics_text.get('lyrics')
+    except Exception:
+        print_exc()
+        return None

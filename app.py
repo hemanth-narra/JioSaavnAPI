@@ -10,6 +10,12 @@ app.secret_key = os.environ.get("SECRET", 'thankyoutonystark#weloveyou3000')
 CORS(app)
 
 
+def parse_bool_arg(arg_value, default=False):
+    if arg_value is None:
+        return default
+    return arg_value.lower() != 'false'
+
+
 @app.route('/')
 def home():
     return redirect("https://cyberboysumanjay.github.io/JioSaavnAPI/")
@@ -17,15 +23,9 @@ def home():
 
 @app.route('/song/')
 def search():
-    lyrics = False
-    songdata = True
     query = request.args.get('query')
-    lyrics_ = request.args.get('lyrics')
-    songdata_ = request.args.get('songdata')
-    if lyrics_ and lyrics_.lower() != 'false':
-        lyrics = True
-    if songdata_ and songdata_.lower() != 'true':
-        songdata = False
+    lyrics = parse_bool_arg(request.args.get('lyrics'), False)
+    songdata = parse_bool_arg(request.args.get('songdata'), True)
     if query:
         return jsonify(jiosaavn.search_for_song(query, lyrics, songdata))
     else:
@@ -38,11 +38,8 @@ def search():
 
 @app.route('/song/get/')
 def get_song():
-    lyrics = False
     id = request.args.get('id')
-    lyrics_ = request.args.get('lyrics')
-    if lyrics_ and lyrics_.lower() != 'false':
-        lyrics = True
+    lyrics = parse_bool_arg(request.args.get('lyrics'), False)
     if id:
         resp = jiosaavn.get_song(id, lyrics)
         if not resp:
@@ -63,11 +60,8 @@ def get_song():
 
 @app.route('/playlist/')
 def playlist():
-    lyrics = False
     query = request.args.get('query')
-    lyrics_ = request.args.get('lyrics')
-    if lyrics_ and lyrics_.lower() != 'false':
-        lyrics = True
+    lyrics = parse_bool_arg(request.args.get('lyrics'), False)
     if query:
         id = jiosaavn.get_playlist_id(query)
         songs = jiosaavn.get_playlist(id, lyrics)
@@ -82,11 +76,8 @@ def playlist():
 
 @app.route('/album/')
 def album():
-    lyrics = False
     query = request.args.get('query')
-    lyrics_ = request.args.get('lyrics')
-    if lyrics_ and lyrics_.lower() != 'false':
-        lyrics = True
+    lyrics = parse_bool_arg(request.args.get('lyrics'), False)
     if query:
         id = jiosaavn.get_album_id(query)
         songs = jiosaavn.get_album(id, lyrics)
@@ -131,11 +122,8 @@ def lyrics():
 
 @app.route('/result/')
 def result():
-    lyrics = False
     query = request.args.get('query')
-    lyrics_ = request.args.get('lyrics')
-    if lyrics_ and lyrics_.lower() != 'false':
-        lyrics = True
+    lyrics = parse_bool_arg(request.args.get('lyrics'), False)
 
     if 'saavn' not in query:
         return jsonify(jiosaavn.search_for_song(query, lyrics, True))
