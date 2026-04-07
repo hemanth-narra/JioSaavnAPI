@@ -1,4 +1,4 @@
-from flask import Flask, request, redirect, jsonify, json
+from flask import Flask, request, redirect, jsonify, json, send_from_directory
 import time
 import jiosaavn
 import os
@@ -18,7 +18,18 @@ def parse_bool_arg(arg_value, default=False):
 
 @app.route('/')
 def home():
-    return redirect("https://cyberboysumanjay.github.io/JioSaavnAPI/")
+    return redirect('/ui')
+
+
+@app.route('/ui')
+@app.route('/ui/')
+def serve_ui():
+    return send_from_directory('frontend', 'index.html')
+
+
+@app.route('/ui/<path:path>')
+def serve_ui_static(path):
+    return send_from_directory('frontend', path)
 
 
 @app.route('/song/')
