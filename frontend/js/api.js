@@ -46,5 +46,60 @@ const JioAPI = {
             console.error('Get playlist failed:', e);
             return null;
         }
+    },
+
+    // ─── Library Management ──────────────────────────────────────────────────
+    async getFavorites() {
+        const res = await fetch(`${API_BASE}/api/favorites`);
+        return await res.json();
+    },
+
+    async toggleFavorite(song) {
+        const res = await fetch(`${API_BASE}/api/favorites`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(song)
+        });
+        return await res.json();
+    },
+
+    async getPlaylists() {
+        const res = await fetch(`${API_BASE}/api/playlists`);
+        return await res.json();
+    },
+
+    async createPlaylist(name) {
+        const res = await fetch(`${API_BASE}/api/playlists`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name })
+        });
+        return await res.json();
+    },
+
+    async getPlaylistDetail(id) {
+        const res = await fetch(`${API_BASE}/api/playlists/${id}`);
+        return await res.json();
+    },
+
+    async deletePlaylist(id) {
+        const res = await fetch(`${API_BASE}/api/playlists/${id}`, { method: 'DELETE' });
+        return await res.json();
+    },
+
+    async addToPlaylist(playlistId, song) {
+        const res = await fetch(`${API_BASE}/api/playlists/${playlistId}/songs`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(song)
+        });
+        return await res.json();
+    },
+
+    async removeFromPlaylist(playlistId, songId) {
+        const res = await fetch(`${API_BASE}/api/playlists/${playlistId}/songs/${songId}`, {
+            method: 'DELETE'
+        });
+        return await res.json();
     }
 };

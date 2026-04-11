@@ -31,6 +31,18 @@
         <span class="nav-icon"></span>
         <span class="nav-label">Search</span>
       </a>
+      <a href="#" class="nav-item" id="navLiked">
+        <span class="nav-icon"></span>
+        <span class="nav-label">Liked Songs</span>
+      </a>
+      <div class="sidebar-sep"></div>
+      <div class="sidebar-head">
+        <p class="sidebar-title">YOUR LIBRARY</p>
+        <button class="add-pl-btn" id="addPlaylistBtn">+</button>
+      </div>
+      <div class="sidebar-playlists" id="sidebarPlaylists">
+        <!-- Playlists will be injected here -->
+      </div>
     </nav>
 
     <div class="sidebar-queue">
@@ -57,6 +69,32 @@
         </div>
       </div>
       <div id="sectionsContainer"></div>
+    </div>
+
+    <!-- Library View (Favorites & Playlists) -->
+    <div class="view hidden" id="libraryView">
+      <div class="library-header">
+        <div class="lib-info">
+          <div class="lib-art-wrap" id="libArtWrap">
+            <!-- Collage will be here -->
+          </div>
+          <div class="lib-meta">
+            <p class="lib-type" id="libType">Playlist</p>
+            <h2 class="lib-title" id="libTitle">Liked Songs</h2>
+            <p class="lib-stats" id="libStats">0 songs</p>
+          </div>
+        </div>
+        <div class="lib-actions">
+          <button class="play-btn-large" id="libPlayBtn">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+            Play All
+          </button>
+          <button class="delete-pl-btn hidden" id="deletePlBtn">Delete Playlist</button>
+        </div>
+      </div>
+      <div class="song-list" id="libSongList">
+        <!-- Songs will be listed here -->
+      </div>
     </div>
 
     <!-- Search Results View -->
@@ -140,6 +178,33 @@
   </div>
 
 </div><!-- #app -->
+
+  <!-- ═══ MODALS ════════════════════════════════════════════════════════════ -->
+  
+  <!-- Create Playlist Modal -->
+  <div class="modal-overlay" id="createPlaylistModal">
+    <div class="modal">
+      <h3>Create New Playlist</h3>
+      <input type="text" id="newPlaylistName" placeholder="Playlist Name" autocomplete="off" />
+      <div class="modal-actions">
+        <button class="modal-btn ghost" id="cancelCreatePlaylist">Cancel</button>
+        <button class="modal-btn primary" id="savePlaylistBtn">Create</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add to Playlist Modal -->
+  <div class="modal-overlay" id="addToPlaylistModal">
+    <div class="modal pl-picker">
+      <h3>Add to Playlist</h3>
+      <div class="pl-picker-list" id="plPickerList">
+        <!-- Playlists will be listed here -->
+      </div>
+      <div class="modal-actions">
+        <button class="modal-btn ghost" id="cancelAddToPlaylist">Cancel</button>
+      </div>
+    </div>
+  </div>
 
 <script src="/ui/js/api.js"></script>
 <script src="/ui/js/player.js"></script>

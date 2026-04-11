@@ -13,11 +13,15 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy the rest of the source code
 COPY . .
 
-# Environment variable for the port, defaults to 5100 matching app.py
+# Create data directory for SQLite persistence
+RUN mkdir -p /app/data
+
+# Environment variable for the database path
+ENV DATABASE_URL=sqlite:////app/data/library.db
 ENV PORT=5100
 
 # Expose the port
 EXPOSE $PORT
 
-# Start the application using the gunicorn command from Procfile and bind to the specified PORT
-CMD gunicorn app:app --bind 0.0.0.0:$PORT --timeout 100 --log-file=-
+# Start the application using the gunicorn command
+CMD gunicorn app:app --bind 0.0.0.0:${PORT:-5100} --timeout 100 --log-file=-
