@@ -1,10 +1,10 @@
 // ─── Config ───────────────────────────────────────────────────────────────────
 const CURATED = [
-    { emoji: '🔥', title: 'Trending Bollywood', query: 'top bollywood hits 2024' },
-    { emoji: '💕', title: 'Romantic Hits',      query: 'arijit singh romantic' },
-    { emoji: '🎉', title: 'Party Anthems',       query: 'bollywood party dance songs' },
-    { emoji: '🌙', title: '90s Nostalgia',       query: 'bollywood 90s classic hits' },
-    { emoji: '⭐', title: 'Best of A.R. Rahman', query: 'AR Rahman best songs' },
+    { emoji: '🔥', title: 'Trending Tollywood', query: 'latest telugu hits' },
+    { emoji: '💕', title: 'Telugu Melodies',    query: 'telugu love failure melodies' },
+    { emoji: '🎉', title: 'Mass Anthems',       query: 'telugu mass dance dj' },
+    { emoji: '⭐', title: 'Best of DSP & Thaman', query: 'devi sri prasad thaman telugu hits' },
+    { emoji: '🎬', title: 'Trending Bollywood', query: 'top bollywood hits' },
 ];
 
 const FALLBACK_IMG = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'%3E%3Crect fill='%231a1a2e' width='200' height='200'/%3E%3Ccircle cx='100' cy='85' r='30' fill='%238b5cf6' opacity='.4'/%3E%3Cellipse cx='100' cy='150' rx='50' ry='20' fill='%238b5cf6' opacity='.2'/%3E%3C/svg%3E`;
@@ -53,6 +53,8 @@ const dom = {
     playPauseBtn:   $('playPauseBtn'),
     prevBtn:        $('prevBtn'),
     nextBtn:        $('nextBtn'),
+    shuffleBtn:     $('shuffleBtn'),
+    repeatBtn:      $('repeatBtn'),
     progressBar:    $('progressBar'),
     progressFill:   $('progressFill'),
     progressThumb:  $('progressThumb'),
@@ -438,7 +440,10 @@ function updateQueue() {
             <p class="q-title">${esc(trunc(s.song, 18))}</p>
             <p class="q-artist">${esc(trunc(s.primary_artists||s.singers, 18))}</p>
           </div>`;
-        item.onclick = () => Player.play(s, queue, i);
+        item.onclick = () => {
+            // Note: If shuffled, we still play the item from the queue by index
+            Player.play(s, undefined, i);
+        };
         dom.queueList.appendChild(item);
     });
 }
@@ -457,10 +462,32 @@ Player.onProgress(({ percent, currentStr, totalStr }) => {
     dom.timeCurrent.textContent   = currentStr;
     dom.timeTotal.textContent     = totalStr;
 });
+Player.onQueueChange(() => {
+    updateQueue();
+});
 
 dom.playPauseBtn.onclick = () => Player.togglePlay();
 dom.prevBtn.onclick      = () => Player.prev();
 dom.nextBtn.onclick      = () => Player.next();
+
+dom.shuffleBtn.onclick = () => {
+    const isShuffled = Player.toggleShuffle();
+    dom.shuffleBtn.style.color = isShuffled ? 'var(--pink)' : 'var(--t2)';
+};
+
+dom.repeatBtn.onclick = () => {
+    const repeatMode = Player.toggleRepeat();
+    if (repeatMode === 0) {
+        dom.repeatBtn.innerHTML = icons.repeat;
+        dom.repeatBtn.style.color = 'var(--t2)';
+    } else if (repeatMode === 1) {
+        dom.repeatBtn.innerHTML = icons.repeat;
+        dom.repeatBtn.style.color = 'var(--pink)';
+    } else if (repeatMode === 2) {
+        dom.repeatBtn.innerHTML = icons.repeat1;
+        dom.repeatBtn.style.color = 'var(--pink)';
+    }
+};
 
 dom.progressBar.onclick = e => {
     const r = dom.progressBar.getBoundingClientRect();
@@ -545,6 +572,9 @@ const icons = {
     music:  `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>`,
     heart:  `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>`,
     plus:   `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>`,
+    shuffle:`<svg viewBox="0 0 24 24" fill="currentColor"><path d="M10.59 9.17L5.41 4 4 5.41l5.17 5.17 1.42-1.41zM14.5 4l2.04 2.04L4 18.59 5.41 20 17.96 7.46 20 9.5V4h-5.5zm.33 9.41l-1.41 1.41 3.13 3.13L14.5 20H20v-5.5l-2.04 2.04-3.13-3.13z"/></svg>`,
+    repeat: `<svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z"/></svg>`,
+    repeat1:`<svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4zm-4-2V9h-1l-2 1v1h1.5v4H13z"/></svg>`,
 };
 
 // Inject static icons
@@ -554,6 +584,8 @@ dom.navLiked.querySelector('.nav-icon').innerHTML = icons.heart;
 dom.playPauseBtn.innerHTML = icons.play;
 dom.prevBtn.innerHTML = icons.prev;
 dom.nextBtn.innerHTML = icons.next;
+dom.shuffleBtn.innerHTML = icons.shuffle;
+dom.repeatBtn.innerHTML  = icons.repeat;
 dom.muteBtn.innerHTML = icons.volume;
 dom.lyricsBtn.innerHTML = `${icons.music}<span>Lyrics</span>`;
 
