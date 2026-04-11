@@ -8,7 +8,7 @@ from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 
 app = Flask(__name__)
-app.secret_key = os.environ.get("SECRET", 'thankyoutonystark#weloveyou3000')
+app.secret_key = os.environ.get("SECRET", os.urandom(24))
 CORS(app)
 
 # Database Configuration
