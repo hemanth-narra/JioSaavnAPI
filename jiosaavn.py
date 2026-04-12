@@ -11,20 +11,28 @@ def search_for_song(query, lyrics, songdata):
         id = get_song_id(query)
         return get_song(id, lyrics)
 
-    search_base_url = endpoints.search_base_url+query
-    response = requests.get(search_base_url).text.encode().decode('unicode-escape')
-    pattern = r'\(From "([^"]+)"\)'
-    response = json.loads(re.sub(pattern, r"(From '\1')", response))
-    song_response = response['songs']['data']
-    if not songdata:
-        return song_response
-    songs = []
-    for song in song_response:
-        id = song['id']
-        song_data = get_song(id, lyrics)
-        if song_data:
-            songs.append(song_data)
-    return songs
+    try:
+        search_base_url = endpoints.search_base_url+query
+        response = requests.get(search_base_url).text.encode().decode('unicode-escape')
+        pattern = r'\(From "([^"]+)"\)'
+        response = json.loads(re.sub(pattern, r"(From '\1')", response))
+        
+        if 'songs' not in response or 'data' not in response['songs']:
+            return []
+
+        song_response = response['songs']['data']
+        if not songdata:
+            return song_response
+        songs = []
+        for song in song_response:
+            id = song['id']
+            song_data = get_song(id, lyrics)
+            if song_data:
+                songs.append(song_data)
+        return songs
+    except Exception as e:
+        print_exc()
+        return []
 
 
 def get_song(id, lyrics):

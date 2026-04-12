@@ -60,6 +60,14 @@ const dom = {
     progressThumb:  $('progressThumb'),
     timeCurrent:    $('timeCurrent'),
     timeTotal:      $('timeTotal'),
+
+    // Mobile specific
+    bNavHome:       $('bNavHome'),
+    bNavSearch:     $('bNavSearch'),
+    bNavLibrary:    $('bNavLibrary'),
+    mpLikeBtn:      $('mpLikeBtn'),
+    mpAddBtn:       $('mpAddBtn'),
+    mpPlayPauseBtn: $('mpPlayPauseBtn'),
     volumeSlider:   $('volumeSlider'),
     volumeFill:     $('volumeFill'),
     muteBtn:        $('muteBtn'),
@@ -144,6 +152,11 @@ async function showLibrary(type, plData = null) {
     }
 }
 
+function updateBottomNav(id) {
+    [dom.bNavHome, dom.bNavSearch, dom.bNavLibrary].forEach(el => el.classList.remove('active'));
+    if (dom[id]) dom[id].classList.add('active');
+}
+
 function renderLibrarySongs(songs) {
     dom.libStats.textContent = `${songs.length} songs`;
     dom.libSongList.innerHTML = '';
@@ -188,16 +201,29 @@ function renderLibrarySongs(songs) {
             <div class="row-dur">${fmtDur(s.duration)}</div>
             <div class="row-btns">
                 <button class="row-fav-btn btn-circle ${isFav(s.id)?'active':''}" data-id="${s.id}">${icons.heart}</button>
+                ${state.currentLib.type === 'playlist' ? `<button class="row-rem-btn btn-circle" title="Remove from Playlist" data-id="${s.id}"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 13H5v-2h14v2z"/></svg></button>` : ''}
             </div>
         `;
         row.addEventListener('click', (e) => {
-            if (e.target.closest('.row-fav-btn')) return;
+            if (e.target.closest('.row-fav-btn') || e.target.closest('.row-rem-btn')) return;
             Player.play(s, songs, i);
         });
         row.querySelector('.row-fav-btn').addEventListener('click', (e) => {
             e.stopPropagation();
             toggleFav(s);
         });
+        const remBtn = row.querySelector('.row-rem-btn');
+        if (remBtn) {
+            remBtn.addEventListener('click', async (e) => {
+                e.stopPropagation();
+                if (confirm('Remove this song from the playlist?')) {
+                    await JioAPI.removeFromPlaylist(state.currentLib.data.id, s.id);
+                    const pl = await JioAPI.getPlaylistDetail(state.currentLib.data.id);
+                    renderLibrarySongs(pl.songs || []);
+                    syncLibrary();
+                }
+            });
+        }
         dom.libSongList.appendChild(row);
     });
 
@@ -581,13 +607,30 @@ const icons = {
 dom.navHome.querySelector('.nav-icon').innerHTML = icons.home;
 dom.navSearch.querySelector('.nav-icon').innerHTML = icons.search;
 dom.navLiked.querySelector('.nav-icon').innerHTML = icons.heart;
+dom.bNavHome.querySelector('.nav-icon').innerHTML = icons.home;
+dom.bNavSearch.querySelector('.nav-icon').innerHTML = icons.search;
+dom.bNavLibrary.querySelector('.nav-icon').innerHTML = icons.heart;
+
 dom.playPauseBtn.innerHTML = icons.play;
+dom.mpPlayPauseBtn.innerHTML = icons.play;
 dom.prevBtn.innerHTML = icons.prev;
 dom.nextBtn.innerHTML = icons.next;
 dom.shuffleBtn.innerHTML = icons.shuffle;
 dom.repeatBtn.innerHTML  = icons.repeat;
 dom.muteBtn.innerHTML = icons.volume;
 dom.lyricsBtn.innerHTML = `${icons.music}<span>Lyrics</span>`;
+dom.mpLikeBtn.innerHTML = icons.heart;
+dom.mpAddBtn.innerHTML = icons.plus;
+
+// Bind mobile bottom nav
+dom.bNavHome.onclick = (e) => { e.preventDefault(); showHome(); };
+dom.bNavSearch.onclick = (e) => { e.preventDefault(); dom.searchInput.focus(); showSearch('Search'); };
+dom.bNavLibrary.onclick = (e) => { e.preventDefault(); showLibrary('favorites', state.favorites); };
+
+// Bind mobile mini player actions
+dom.mpLikeBtn.onclick = () => { if (state.currentSong) toggleFav(state.currentSong); };
+dom.mpAddBtn.onclick = () => { if (state.currentSong) openAddToPlaylist(state.currentSong); };
+dom.mpPlayPauseBtn.onclick = () => Player.togglePlay();
 
 // ─── Init ─────────────────────────────────────────────────────────────────────
 (async () => {

@@ -8,6 +8,11 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="manifest" href="/ui/manifest.json" />
+  <meta name="theme-color" content="#1a1a2e" />
+  <link rel="apple-touch-icon" href="/ui/icon-512.png" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <link rel="stylesheet" href="/ui/css/style.css" />
 </head>
 <body>
@@ -111,6 +116,22 @@
 
   </main>
 
+  <!-- ═══ BOTTOM NAV (MOBILE) ════════════════════════════════════════════════ -->
+  <nav class="bottom-nav" id="bottomNav">
+    <a href="#" class="nav-item active" id="bNavHome">
+      <span class="nav-icon"></span>
+      <span class="nav-label">Home</span>
+    </a>
+    <a href="#" class="nav-item" id="bNavSearch">
+      <span class="nav-icon"></span>
+      <span class="nav-label">Search</span>
+    </a>
+    <a href="#" class="nav-item" id="bNavLibrary">
+      <span class="nav-icon"></span>
+      <span class="nav-label">Library</span>
+    </a>
+  </nav>
+
   <!-- ═══ PLAYER BAR ══════════════════════════════════════════════════════════ -->
   <div class="player-bar" id="playerBar">
 
@@ -125,6 +146,11 @@
       <div class="pb-meta">
         <p class="pb-title"  id="playerTitle">Nothing playing</p>
         <p class="pb-artist" id="playerArtist">Select a song to start</p>
+      </div>
+      <div class="pb-left-actions hidden-desktop">
+        <button class="icon-btn" id="mpLikeBtn" aria-label="Like"></button>
+        <button class="icon-btn" id="mpAddBtn" aria-label="Add to Playlist"></button>
+        <button class="ctrl-btn play-pause" id="mpPlayPauseBtn" aria-label="Play / Pause"></button>
       </div>
     </div>
 
@@ -211,5 +237,14 @@
 <script src="/ui/js/api.js"></script>
 <script src="/ui/js/player.js"></script>
 <script src="/ui/js/app.js"></script>
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/ui/sw.js')
+        .then(registration => console.log('SW registered!'))
+        .catch(err => console.log('SW registration failed: ', err));
+    });
+  }
+</script>
 </body>
 </html>
